@@ -94,8 +94,8 @@ int main(int argc, char** argv)
 	int err = 0;
 	if (argc != 3)
 	{
+		printf("ERROR: Bad Argument Count\n");
 		err = EXIT_WRONG_ARG_COUNT;
-		goto do_err;
 	}
 
 	memset(&pgm_info, 0, sizeof(pgm_info_t));

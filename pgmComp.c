@@ -2,34 +2,39 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-typedef struct {
-    int w;
-    int h;
-    int max_gray;
-    int size;
-}pgm_property_t;
 
+#define IDENTICAL 0;
+#define DIFFERENT 0;
+#define EXIT_NO_ERRORS 0
+#define EXIT_WRONG_ARG_COUNT 1
+#define EXIT_BAD_FILE_NAME 2
+#define EXIT_BAD_MAGIC_NUMBER 3
+#define EXIT_Bad_Comment_Line 4
+#define EXIT_Bad_Dimensions 5
+#define EXIT_Bad_Max_Gray_Value 6
+#define EXIT_Image_Malloc_Failed 7
+#define EXIT_BAD_DATA 8
+#define EXIT_Output_Failed 9
+#define EXIT_ANY_OTHRER_ERR 100 
+
+#define MAGIC_NUMBER_RAW_PGM 0x3550
+#define MAGIC_NUMBER_ASCII_PGM 0x3250
+#define MIN_IMAGE_DIMENSION 1
+#define MAX_IMAGE_DIMENSION 65536
 typedef struct {
     FILE* inp_file;
     FILE* outp_file;
     unsigned char* input_pgm_data;
 } pgm_info_t;
 
-#define IDENTICAL 0;
-#define DIFFERENT 0;
-#define EXIT_WRONG_ARG_COUNT 1;
-#define EXIT_Bad_Dimensions 5
-#define EXIT_BAD_FILE_NAME 2
-#define EXIT_Image_Malloc_Failed 7
-
-#define MIN_IMAGE_DIMENSION 1
-#define MAX_IMAGE_DIMENSION 65536
+static pgm_info_t pgm_info1;
+static pgm_info_t pgm_info2;
 
 typedef struct {
-    unsigned int w;         // Í¼Ïñ¿í¶È
-    unsigned int h;         // Í¼Ïñ¸ß¶È
-    unsigned int max_gray;  // ×î´ó»Ò¶ÈÖµ
-    unsigned int size;      // ÏñËØÊý¾Ý´óÐ¡
+    unsigned int w;         // å›¾åƒå®½åº¦
+    unsigned int h;         // å›¾åƒé«˜åº¦
+    unsigned int max_gray;  // æœ€å¤§ç°åº¦å€¼
+    unsigned int size;      // åƒç´ æ•°æ®å¤§å°
 } pgm_property_t;
 
 int pgm_parse_image_property(FILE* f, pgm_property_t* prop) {
@@ -73,16 +78,35 @@ int pgm_read_image_data(FILE* f, pgm_property_t* prop, unsigned char** img_buff)
     return 0;
 }
 
+int pgm_check_magic_number(FILE* f)
+{
+	/* the magic number		         */
+	/* stored as two bytes to avoid	         */
+	/* problems with endianness	         */
+	/* Raw:    0x5035 or P5		         */
+	/* ASCII:  0x5032 or P2		         */
+	unsigned char magic_number[2] = { '0','0' };
+	unsigned short* magic_Number = (unsigned short*)magic_number;
+	/* read in the magic number              */
+	magic_number[0] = getc(f);
+	magic_number[1] = getc(f);
+
+    if(*magic_Number == MAGIC_NUMBER_ASCII_PGM || (*magic_Number == MAGIC_NUMBER_RAW_PGM))
+        return 0;
+
+	return EXIT_BAD_MAGIC_NUMBER;
+}
+
 int comparePGM(const char* file1, const char* file2) {
     /*FILE* fp1 = fopen(file1, "rb");
     if (fp1 == NULL) {
-        printf("ÎÞ·¨´ò¿ªÎÄ¼þ£º%s\n", file1);
+        printf("æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š%s\n", file1);
         return 0;
     }
 
     FILE* fp2 = fopen(file2, "rb");
     if (fp2 == NULL) {
-        printf("ÎÞ·¨´ò¿ªÎÄ¼þ£º%s\n", file2);
+        printf("æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š%s\n", file2);
         fclose(fp1);
         return 0;
     }*/
@@ -101,6 +125,23 @@ int comparePGM(const char* file1, const char* file2) {
         printf("ERROR: Bad File Name (%s)\n", pgm_info2.inp_file);
         return EXIT_BAD_FILE_NAME;
     }
+
+    if(pgm_check_magic_number(pgm_info1.inp_file) > 0)
+    {
+        printf("ERROR: Bad Magic Number (%s)\n",file1);
+        fclose(pgm_info1.inp_file);
+        fclose(pgm_info2.inp_file);
+        return EXIT_BAD_MAGIC_NUMBER;
+    }
+
+    if(pgm_check_magic_number(pgm_info2.inp_file) > 0)
+    {
+        printf("ERROR: Bad Magic Number (%s)\n", file2);
+        fclose(pgm_info1.inp_file);
+        fclose(pgm_info2.inp_file);
+        return EXIT_BAD_MAGIC_NUMBER;
+    }
+    
     pgm_property_t prop1, prop2;
     int result1 = pgm_parse_image_property(pgm_info1.inp_file, &prop1);
     int result2 = pgm_parse_image_property(pgm_info2.inp_file, &prop2);
@@ -108,12 +149,14 @@ int comparePGM(const char* file1, const char* file2) {
     if (result1 != 0) {
         fclose(pgm_info1.inp_file);
         fclose(pgm_info2.inp_file);
+        printf("ERROR: Bad Dimensions (%s)\n", file1);
         return EXIT_Bad_Dimensions;
     }
 
     if (result2 != 0) {
         fclose(pgm_info1.inp_file);
         fclose(pgm_info2.inp_file);
+        printf("ERROR: Bad Dimensions (%s)\n", file2);
         return EXIT_Bad_Dimensions;
     }
 
@@ -122,7 +165,6 @@ int comparePGM(const char* file1, const char* file2) {
         fclose(pgm_info1.inp_file);
         fclose(pgm_info2.inp_file);
         return DIFFERENT;
-        return 0;
     }
 
     unsigned char* img_buff1 = NULL;
@@ -131,26 +173,26 @@ int comparePGM(const char* file1, const char* file2) {
     int result4 = pgm_read_image_data(pgm_info2.inp_file, &prop2, &img_buff2);
 
     if (result3 != 0) {
-        printf("ERROR: Bad Max Gray Value (%s)\n", file1);
+        printf("ERROR: Bad Data (%s)\n", file1);
         if (img_buff1 != NULL) {
             free(img_buff1);
         }
         fclose(pgm_info1.inp_file);
         fclose(pgm_info2.inp_file);
-        return 0;
+        return EXIT_BAD_DATA;
     }
 
     if (result4 != 0) {
-        printf("ERROR: Bad Max Gray Value (%s)\n", file2);
+        printf("ERROR: Bad Data (%s)\n", file2);
         if (img_buff1 != NULL) {
             free(img_buff1);
         }
         if (img_buff2 != NULL) {
             free(img_buff2);
         }
-        fclose(file1);
-        fclose(file2);
-        return 0;
+        fclose(pgm_info1.inp_file);
+        fclose(pgm_info2.inp_file);
+        return EXIT_BAD_DATA;
     }
 
     for (int i = 0; i < prop1.h; i++) {
@@ -164,9 +206,9 @@ int comparePGM(const char* file1, const char* file2) {
         }
     }
     printf("IDENTICAL\n");
-    // img_buff1 ºÍ img_buff2 ´æ´¢×Å¶ÁÈ¡µ½µÄÏñËØÊý¾Ý
+    // img_buff1 å’Œ img_buff2 å­˜å‚¨ç€è¯»å–åˆ°çš„åƒç´ æ•°æ®
 
-    // ÊÍ·ÅÄÚ´æºÍ¹Ø±ÕÎÄ¼þ
+    // é‡Šæ”¾å†…å­˜å’Œå…³é—­æ–‡ä»¶
     free(img_buff1);
     free(img_buff2);
     fclose(file1);
@@ -174,11 +216,10 @@ int comparePGM(const char* file1, const char* file2) {
 
     return 0;
 }
-static pgm_info_t pgm_info1;
-static pgm_info_t pgm_info2;
+
 int main(int argc, char* argv[]) {
     /* check for correct number of arguments */
-    if (argc == 1||argc==2)
+    if (argc == 1)
     { /* wrong arg count */
         /* print an error message        */
         printf("Usage: ./pgmComp inputImage.pgm inputImage.pgm\n");
@@ -186,7 +227,6 @@ int main(int argc, char* argv[]) {
         return 0;
     } /* wrong arg count */
 
-    int err = 0;
     if (argc != 3)
     {
         printf("ERROR: Bad Argument Count\n");
@@ -197,7 +237,5 @@ int main(int argc, char* argv[]) {
     const char* file2 = argv[2];
     
 
-    comparePGM(file1,file2);
-
-    return 0;
+    return comparePGM(file1,file2);
 }

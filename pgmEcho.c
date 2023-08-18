@@ -1,4 +1,4 @@
-/***********************************/
+﻿/***********************************/
 /* XJCO 1921M Programming Project  */
 /* 2022-23 Spring Semester         */
 /*           			   */
@@ -34,7 +34,7 @@
 #define EXIT_BAD_DATA 8
 #define EXIT_Output_Failed 9
 #define EXIT_ANY_OTHRER_ERR 100 
-//TODO:: �����˳��Ĵ���
+//TODO::
 /*
 1   ERROR: Bad Argument Count	Program given wrong # of arguments
 2	ERROR: Bad File Name (fname)	Program failed to open a file stream
@@ -105,33 +105,33 @@ int main(int argc, char** argv)
 	} /* wrong arg count */
 
 	int err = 0;
-	if(argc != 3)
+	if (argc != 3)
 	{
-		err = EXIT_WRONG_ARG_COUNT;
-		goto do_err;
+		printf("ERROR: Bad Argument Count\n");
+		return EXIT_WRONG_ARG_COUNT;
 	}
-	
+
 	memset(&pgm_info, 0, sizeof(pgm_info_t));
 
 	pgm_info.inp_file = fopen(argv[1], "r");
 	/* if it fails, return error code        */
 	if (pgm_info.inp_file == NULL)
 	{
-		err =  EXIT_BAD_FILE_NAME;
+		err = EXIT_BAD_FILE_NAME;
 		goto do_err;
 	}
 
-	//���magic number
+	//magic number
 	err = pgm_check_magic_number(pgm_info.inp_file);
 	if (err != EXIT_NO_ERRORS)
 		goto do_err;
 
-	// ��� ע����
+	// 
 	err = pgm_check_comment_line(pgm_info.inp_file);
 	if (err != EXIT_NO_ERRORS)
 		goto do_err;
 	pgm_property_t  prop = { 0 };
-	// ����ͼ�εĻ������� �� �� 
+	// 
 	err = pgm_parse_image_property(pgm_info.inp_file, &prop);
 	if (err != EXIT_NO_ERRORS)
 		goto do_err;
@@ -152,7 +152,7 @@ int main(int argc, char** argv)
 	if (err != EXIT_NO_ERRORS)
 		goto do_err;
 do_err:
-	do_exception(err,argv[1],argv[2]);
+	do_exception(err, argv[1], argv[2]);
 
 	resource_release();
 	exit(err);
@@ -171,7 +171,7 @@ void resource_release()
 		free(pgm_info.input_pgm_data);
 }
 
-// ERROR����
+// ERROR
 int pgm_check_magic_number(FILE* f)
 {
 	/* the magic number		         */
@@ -213,15 +213,15 @@ int pgm_check_comment_line(FILE* f)
 		if (commentString == NULL)
 		{ /* NULL comment read   */
 			//TODO:: ERROR: Bad Comment Line (fname)
-			//TODO::����ķ���ֵ����Ŷ
-			//return EXIT_Bad_Comment_Line;
+			//TODO::
+			return EXIT_Bad_Comment_Line;
 		} /* NULL comment read   */
 	} /* comment line */
 	else
 	{ /* not a comment line */
 		/* put character back            */
 		ungetc(nextChar, f);
-		//return EXIT_Bad_Comment_Line;
+		return EXIT_Bad_Comment_Line;
 	} /* not a comment line */
 
 	return 0;
@@ -241,7 +241,7 @@ int pgm_parse_image_property(FILE* f, pgm_property_t* prop)
 		(prop->h > MAX_IMAGE_DIMENSION) ||
 		(prop->max_gray != 255)
 		)
-	{   //TODO::���ﷵ��ֵҲ���� ERROR: Bad Dimensions (fname)
+	{   //TODO:: ERROR: Bad Dimensions (fname)
 		//RROR: Bad Max Gray Value (fname)
 		return  EXIT_Bad_Dimensions;
 		//return  EXIT_Bad_Max_Gray_Value;
@@ -261,7 +261,7 @@ int pgm_read_image_data(FILE* f, pgm_property_t* prop, unsigned char** img_buff)
 	/* sanity check for memory allocation    */
 	if (img_buff == NULL)
 	{
-		//TODO:: Ӧ����ERROR: Image Malloc Failed
+		//TODO:: ERROR: Image Malloc Failed
 		return EXIT_Image_Malloc_Failed;
 	}
 	/* pointer for efficient read code       */
@@ -313,7 +313,7 @@ int pgm_convert_2_matrix(FILE* f, unsigned char* src_img, int w, const int h, co
 	return 0;
 }
 
-// //TODO::���������err��ֵ ��װ �������,�����
+// //TODO:
 int do_exception(int err, char* inputfile, char* outputfile)
 {
 	//fclose(f);
@@ -321,33 +321,34 @@ int do_exception(int err, char* inputfile, char* outputfile)
 	{
 	case EXIT_WRONG_ARG_COUNT:
 		printf("ERROR: Bad Arguments\n");
-			break;
+		break;
 	case EXIT_BAD_FILE_NAME:
-		printf("ERROR: Bad File Name (%s)\n",inputfile);
-			break;
+		printf("ERROR: Bad File Name (%s)\n", inputfile);
+		break;
 	case EXIT_BAD_MAGIC_NUMBER:
-		printf("ERROR: Bad Magic Number (%s)\n",inputfile);
+		printf("ERROR: Bad Magic Number (%s)\n", inputfile);
 		break;
 	case EXIT_Bad_Comment_Line:
 		printf("ERROR: Bad Comment Line (%s)\n", inputfile);
-			break;
+		break;
 	case EXIT_Bad_Dimensions:
 		printf("ERROR: Bad Dimensions (%s)\n", inputfile);
-			break;
+		break;
 	case EXIT_Bad_Max_Gray_Value:
 		printf("ERROR: Bad Max Gray Value (%s)\n", inputfile);
-			break;
+		break;
 	case EXIT_Image_Malloc_Failed:
 		printf("ERROR: Image Malloc Failed\n");
-			break;
+		break;
 	case EXIT_Output_Failed:
 		printf("ERROR: Output Failed (%s)\n", outputfile);
-			break;
+		break;
 	case EXIT_ANY_OTHRER_ERR:
 		printf("ERROR: Miscellaneous \n");
 		break;
 	default:
 		printf("ECHOED\n");
-			break;
+		break;
 	}
+	return 0;
 }
