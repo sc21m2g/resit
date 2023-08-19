@@ -9,10 +9,13 @@ CC     = gcc
 # -g enables the use of GDB
 CFLAGS = -std=c99 -Wall -g -Werror=unused-variable
 # this is your list of executables which you want to compile with all
-EXE    = pgmEcho
+EXE    = pgmEcho pgmComp pgmb2a pgma2b
 
 # we put 'all' as the first command as this will be run if you just enter 'make'
 all: ${EXE}
+	gcc -g pgmComp.c -o pgmComp -Werror=unused-variable
+	gcc -g pgmb2a.c -o pgmb2a -Werror=unused-variable
+	gcc -g pgma2b.c -o pgma2b -Werror=unused-variable
 
 # clean removes all object files - DO NOT UNDER ANY CIRCUMSTANCES ADD .c OR .h FILES
 # rm is NOT REVERSIBLE.
@@ -25,8 +28,7 @@ clean:
 # pgmEcho.o: pgmEcho.c
 #gcc -c -std=c99 -g pgmEcho.c -o pgmEcho.o
 # gcc -g pgmEcho.c -o pgmEcho 
-# gcc -g pgmComp.c -o pgmComp
-
+	
 %.o: %.c
 	$(CC) -c $(CFLAGS) $< -o $@
 
