@@ -31,10 +31,10 @@ static pgm_info_t pgm_info1;
 static pgm_info_t pgm_info2;
 
 typedef struct {
-    unsigned int w;         // 图像宽度
-    unsigned int h;         // 图像高度
-    unsigned int max_gray;  // 最大灰度值
-    unsigned int size;      // 像素数据大小
+    unsigned int w;         // width
+    unsigned int h;         // height
+    unsigned int max_gray;  // Max gray value
+    unsigned int size;      // Pixel data size
 } pgm_property_t;
 
 int pgm_parse_image_property(FILE* f, pgm_property_t* prop) {
@@ -100,13 +100,13 @@ int pgm_check_magic_number(FILE* f)
 int comparePGM(const char* file1, const char* file2) {
     /*FILE* fp1 = fopen(file1, "rb");
     if (fp1 == NULL) {
-        printf("无法打开文件：%s\n", file1);
+        printf("Failed to open: %s\n", file1);
         return 0;
     }
 
     FILE* fp2 = fopen(file2, "rb");
     if (fp2 == NULL) {
-        printf("无法打开文件：%s\n", file2);
+        printf("Failed t open: %s\n", file2);
         fclose(fp1);
         return 0;
     }*/
@@ -206,9 +206,7 @@ int comparePGM(const char* file1, const char* file2) {
         }
     }
     printf("IDENTICAL\n");
-    // img_buff1 和 img_buff2 存储着读取到的像素数据
 
-    // 释放内存和关闭文件
     free(img_buff1);
     free(img_buff2);
     fclose(file1);

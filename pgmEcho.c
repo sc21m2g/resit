@@ -213,7 +213,6 @@ int pgm_check_comment_line(FILE* f)
 		if (commentString == NULL)
 		{ /* NULL comment read   */
 			//TODO:: ERROR: Bad Comment Line (fname)
-			//TODO::
 			return EXIT_Bad_Comment_Line;
 		} /* NULL comment read   */
 	} /* comment line */
@@ -242,9 +241,9 @@ int pgm_parse_image_property(FILE* f, pgm_property_t* prop)
 		(prop->max_gray != 255)
 		)
 	{   //TODO:: ERROR: Bad Dimensions (fname)
-		//RROR: Bad Max Gray Value (fname)
+		
 		return  EXIT_Bad_Dimensions;
-		//return  EXIT_Bad_Max_Gray_Value;
+		
 	}
 
 	return 0;
