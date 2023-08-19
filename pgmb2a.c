@@ -274,34 +274,34 @@ int pgm_read_image_data(FILE* f, pgm_property_t* prop, unsigned char** img_buff)
 
 
 int pgm_convert_2_matrix(FILE* src_file, FILE* dest_file, int width, int height, int max_gray) {
-	// 写入ASCII文件头部分
+	// write to ASCII file
 	fprintf(dest_file, "P2\n%d %d\n%d\n", width, height, max_gray);
 
-	// 分配内存保存所有像素值
+	// Allocate memory to hold all pixel values
 	int num_pixels = width * height;
 	unsigned char* pixels = (unsigned char*)malloc(num_pixels * sizeof(unsigned char));
 	if (pixels == NULL) {
-		// TODO: 错误处理，内存分配失败
+		// TODO: Error:Memory allocation failed
 		return EXIT_Image_Malloc_Failed;
 	}
 
-	// 读取二进制像素值
+	// Read pixel by pixel
 	if (fread(pixels, sizeof(unsigned char), num_pixels, src_file) < num_pixels) {
-		// TODO: 错误处理，读取像素值失败
+		// TODO: Error:Failed to read the pixel value
 		free(pixels);
 		return EXIT_BAD_DATA;
 	}
 
-	// 逐个像素写入ASCII形式到目标文件
+	
 	for (int i = 0; i < num_pixels; i++) {
 		if (fprintf(dest_file, "%d%c", pixels[i], ((i + 1) % width) ? ' ' : '\n') < 0) {
-			// TODO: 错误处理，写入像素值失败
+			// TODO: Error:Failed to write the pixel value
 			free(pixels);
 			return EXIT_Output_Failed;
 		}
 	}
 
-	// 释放内存并返回成功状态
+	
 	free(pixels);
 	return 0;
 }

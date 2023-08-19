@@ -159,7 +159,7 @@ void resource_release()
 		free(pgm_info.input_pgm_data);
 }
 
-// ERROR
+
 int pgm_check_magic_number(FILE* f)
 {
 	/* the magic number		         */
@@ -275,34 +275,34 @@ int pgm_read_image_data(FILE* f, pgm_property_t* prop, unsigned char** img_buff)
 
 
 int pgm_convert_2_matrix(FILE* src_file, FILE* dest_file, int width, int height, int max_gray) {
-	// 写入二进制文件头部分
+	// write to binary file
 	fprintf(dest_file, "P5\n%d %d\n%d\n", width, height, max_gray);
 
-	// 分配内存保存所有像素值
+	// Allocate memory to hold all pixel values
 	int num_pixels = width * height;
 	unsigned char* pixels = (unsigned char*)malloc(num_pixels * sizeof(unsigned char));
 	if (pixels == NULL) {
-		// TODO: 错误处理，内存分配失败
+		// TODO: Error:Memory allocation failed
 		return EXIT_Image_Malloc_Failed;
 	}
 
-	// 逐个像素读取和写入
+	// Read and write pixel by pixel
 	for (int i = 0; i < num_pixels; i++) {
 		if (fscanf(src_file, "%hhu", &pixels[i]) != 1) {
-			// TODO: 错误处理，读取像素值失败
+			// TODO: Error:Failed to read the pixel value
 			free(pixels);
 			return EXIT_BAD_DATA;
 		}
 	}
 
-	// 将像素值以二进制形式写入目标文件
+	
 	if (fwrite(pixels, sizeof(unsigned char), num_pixels, dest_file) < num_pixels) {
-		// TODO: 错误处理，写入像素值失败
+		// TODO: Error:Failed to write the pixel value
 		free(pixels);
 		return EXIT_Output_Failed;
 	}
 
-	// 释放内存并返回成功状态
+	
 	free(pixels);
 	return 0;
 }
