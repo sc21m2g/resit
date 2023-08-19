@@ -112,7 +112,7 @@ int comparePGM(const char* file1, const char* file2) {
     }*/
     memset(&pgm_info1, 0, sizeof(pgm_info_t));
     memset(&pgm_info2, 0, sizeof(pgm_info_t));
-
+    //read your pgm files
     pgm_info1.inp_file = fopen(file1, "rb");
     if (pgm_info1.inp_file == NULL)
     {
